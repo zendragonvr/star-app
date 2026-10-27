@@ -1,0 +1,48 @@
+[gd_scene load_steps=7 format=3 uid="uid://starappfreshmain"]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/sky_core.gd" id="2_sky"]
+[ext_resource type="Script" path="res://scripts/planets_core.gd" id="3_planets"]
+[ext_resource type="Script" path="res://scripts/hand_tracking.gd" id="4_hands"]
+[ext_resource type="Script" path="res://scripts/identify_panel.gd" id="5_panel"]
+[ext_resource type="Script" path="res://scripts/teacher_client.gd" id="6_teacher"]
+[ext_resource type="Script" path="res://scripts/voice_ui.gd" id="7_voice"]
+
+[sub_resource type="Environment" id="env_passthrough"]
+background_mode = 1
+background_color = Color(0, 0, 0, 0)
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("env_passthrough")
+
+[node name="SkyCore" type="Node3D" parent="."]
+script = ExtResource("2_sky")
+
+[node name="PlanetsCore" type="Node3D" parent="."]
+script = ExtResource("3_planets")
+
+[node name="HandTracking" type="Node3D" parent="."]
+script = ExtResource("4_hands")
+
+[node name="IdentifyPanel" type="Node3D" parent="."]
+script = ExtResource("5_panel")
+
+[node name="TeacherClient" type="Node" parent="."]
+script = ExtResource("6_teacher")
+
+[node name="VoiceUI" type="AudioStreamPlayer" parent="."]
+script = ExtResource("7_voice")
+worker_url = ""
+
+[node name="XROrigin" type="XROrigin3D" parent="."]
+
+[node name="XRCamera" type="XRCamera3D" parent="XROrigin"]
+
+[node name="LeftHand" type="OpenXRHand" parent="XROrigin"]
+hand = 0
+
+[node name="RightHand" type="OpenXRHand" parent="XROrigin"]
+hand = 1

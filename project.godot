@@ -1,0 +1,45 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Star App"
+config/description="Star App — look at the sky, pinch to identify a star or planet, ask the AI teacher about it, fly to planets."
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+config/icon="res://icon.svg"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+
+[meta_xr_features]
+
+passthrough=true
+
+[physics]
+
+common/physics_ticks_per_second=90
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0, 0, 0, 0)
+
+[xr]
+
+openxr/enabled=true
+openxr/environment_blend_mode=2
+openxr/extensions/hand_tracking=true
+openxr/extensions/hand_interaction_profile=true
