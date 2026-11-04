@@ -10,14 +10,17 @@ extends Node3D
 
 const AstroMathScript = preload("res://scripts/astro_math.gd")
 
-@export var lat_deg: float = 28.5496
-@export var lon_deg: float = -81.7729
+@export var lat_deg: float = 28.4152
+@export var lon_deg: float = -81.7879
 @export var yaw_offset_deg: float = 0.0
+@export var alt_offset_deg: float = 0.0  # vc78 PRECISE: height correction from Moon lock pinch
 @export var sky_radius: float = 90.0
 
 var _stars: Array = []
 var _star_id_to_index: Dictionary = {}
 var _multimesh_instance: MultiMeshInstance3D
+var _spike_sprites: Array = []
+var _spike_texture: Texture2D = null
 var _halo_instance: MultiMeshInstance3D
 var _halo_star_indices: Array = []
 var _last_update_unix: float = -1.0
@@ -58,29 +61,31 @@ static func display_name_for(proper: String, bayer: String, flam: String, con: S
 	return ""
 
 static func star_color(spect: String, ci: float) -> Color:
-	# Real star colours, by spectral class first, colour index
-	# as fallback. O/B blue, A white-blue, F yellow-white,
-	# G yellow, K orange, M red. Stars are NOT textured surfaces
-	# — their look IS their colour and light, which is what this
-	# colour is. HYG v41, CC BY-SA 4.0, spect + ci columns.
+	# vc120 VIVID (user 2026-11-01: stars looked all white in the headset).
+	# Same spectral order as before, colours pushed apart so they actually
+	# read at dot size in VR: blue is blue, yellow is yellow, orange is
+	# orange, red is red, white stays white. This is deliberately stronger
+	# than the muted real values — the old values (B 0.67/0.75/1.0,
+	# G 1.0/0.96/0.92, K 1.0/0.82/0.63) were too close to white to tell apart.
+	# HYG v41, CC BY-SA 4.0, spect + ci columns.
 	if spect != "":
 		match spect[0]:
-			"O": return Color(0.61, 0.69, 1.0)
-			"B": return Color(0.67, 0.75, 1.0)
-			"A": return Color(0.79, 0.84, 1.0)
-			"F": return Color(0.97, 0.97, 1.0)
-			"G": return Color(1.0, 0.96, 0.92)
-			"K": return Color(1.0, 0.82, 0.63)
-			"M": return Color(1.0, 0.71, 0.42)
+			"O": return Color(0.55, 0.65, 1.0)
+			"B": return Color(0.58, 0.70, 1.0)
+			"A": return Color(0.85, 0.88, 1.0)
+			"F": return Color(0.98, 0.95, 0.70)
+			"G": return Color(1.0, 0.85, 0.40)
+			"K": return Color(1.0, 0.62, 0.20)
+			"M": return Color(1.0, 0.40, 0.15)
 	if ci < 0.0:
-		return Color(0.67, 0.75, 1.0)
+		return Color(0.58, 0.70, 1.0)
 	if ci < 0.5:
 		return Color(0.85, 0.88, 1.0)
 	if ci < 1.0:
-		return Color(1.0, 0.96, 0.92)
+		return Color(1.0, 0.85, 0.40)
 	if ci < 1.5:
-		return Color(1.0, 0.82, 0.63)
-	return Color(1.0, 0.71, 0.42)
+		return Color(1.0, 0.62, 0.20)
+	return Color(1.0, 0.40, 0.15)
 
 func _load_stars() -> void:
 	# v16 CRITICAL FIX: stars.csv was NEVER in any APK.
@@ -143,12 +148,11 @@ func _load_stars() -> void:
 	print("Star App: loaded ", _stars.size(), " stars")
 
 func _star_brightness(mag: float) -> float:
-	# v19: bright stars brighter, faint stars dimmer, but
-	# compressed so mag 6 is still visible in VR. Sirius
-	# mag -1.44 -> 1.37, Vega 0 -> 1.20, mag 3 -> 0.84,
-	# mag 6 -> 0.48. Colour is multiplied by this, so a
-	# bright blue star is bright blue, not washed white.
-	return clamp(1.20 - mag * 0.12, 0.30, 1.50)
+	# vc120: keep hue on faint stars. Old range 0.30-1.50 darkened a faint
+	# orange star to grey-brown (1.0/0.82/0.63 * 0.48). New range 0.60-1.00:
+	# mag 6 still 0.63, bright stars 1.00, so colour survives at every mag.
+	# Depth comes from size + this brightness range, not from washing colour out.
+	return clamp(1.05 - mag * 0.07, 0.60, 1.00)
 
 func _build_meshes() -> void:
 	_multimesh_instance = MultiMeshInstance3D.new()
@@ -159,7 +163,7 @@ func _build_meshes() -> void:
 	# first build, which still exported a broken APK — never
 	# deliver a build with a script parse error). Use the
 	# integer value: 0 = NONE, 1 = 8BIT, 2 = FLOAT.
-	mm.color_format = 1
+	mm.use_colors = true  # vc182 FIX: Godot 4.3 name (color_format is Godot 3 and aborted the whole star build in debug exports = no stars)
 	# v19: round sphere, not a square box. A box reads as a
 	# pixel, a sphere reads as a point of light, especially
 	# when the user moves and sees it from the side.
@@ -204,7 +208,7 @@ func _build_meshes() -> void:
 	_halo_instance = MultiMeshInstance3D.new()
 	var hm: MultiMesh = MultiMesh.new()
 	hm.transform_format = MultiMesh.TRANSFORM_3D
-	hm.color_format = 1
+	hm.use_colors = true  # vc182 FIX: same as above
 	var halo_sphere: SphereMesh = SphereMesh.new()
 	halo_sphere.radius = 0.5
 	halo_sphere.height = 1.0
@@ -217,7 +221,7 @@ func _build_meshes() -> void:
 	hm.instance_count = _halo_star_indices.size()
 	_halo_instance.multimesh = hm
 	var halo_mat: StandardMaterial3D = StandardMaterial3D.new()
-	halo_mat.albedo_color = Color(1.0, 1.0, 1.0, 0.18)
+	halo_mat.albedo_color = Color(1.0, 1.0, 1.0, 0.15)
 	halo_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	halo_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	halo_mat.vertex_color_use_as_albedo = true
@@ -226,15 +230,27 @@ func _build_meshes() -> void:
 	for hi: int in range(_halo_star_indices.size()):
 		var si: int = _halo_star_indices[hi]
 		var hc: Color = _stars[si].get("color", Color(1.0, 1.0, 1.0))
-		hm.set_instance_color(hi, Color(hc.r, hc.g, hc.b, 0.18))
+		hm.set_instance_color(hi, Color(hc.r, hc.g, hc.b, 0.15))
 	add_child(_halo_instance)
+	_halo_instance.visible = false  # vc159: halo orbs REMOVED at user word 2026-11-02 — far stars had a transparent orb around them, should be just points of light. Halo mesh stays in code, hidden, so bright stars are not orbs anymore. Spike sprites for the brightest stars stay, they are star points, not orbs.
+	# vc106 REMOVED: Milky Way band (vc101-vc105) removed at user request 2026-11-01 ("Yes the Milky Way band", "I want it how we had it"). No band node, no milky_way_band texture load — sky is back to the pre-vc101 dark sky. Faint-star floor stays 0.30 (vc102), spike scale stays vc103. Sirius companion, star halos, and the vc105 particle face are NOT the band and are untouched.
+	# vc99 STAR MIXTURE: brightest stars (mag < 1.0, same list as halos) get a spiked star sprite, dim stars stay dots. Own synthesis texture, not a copied photo.
+	_spike_texture = load("res://data/sky/star_spike.png")
+	if _spike_texture != null:
+		for si in _halo_star_indices:
+			if float(_stars[si].get("mag", 99.0)) >= 0.5:
+				continue
+			var sp: Sprite3D = Sprite3D.new()
+			sp.texture = _spike_texture
+			sp.modulate = _stars[si].get("color", Color(1.0, 1.0, 1.0))
+			sp.pixel_size = 0.02
+			sp.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			add_child(sp)
+			_spike_sprites.append({"node": sp, "index": si})
 	# No constellation lines, by user direction 2026-10-26.
 	# Nothing is drawn between stars, ever.
 
 func _star_scale(mag: float) -> float:
-	# Brighter (lower mag) = larger. Clamped so faint stars stay
-	# visible. v3: about half the v1/v2 size — these are points
-	# overlaid on the real sky, not objects in a virtual world.
 	var s: float = 0.30 - mag * 0.04
 	return clamp(s, 0.06, 0.45)
 
@@ -244,35 +260,57 @@ func _update_sky(force: bool) -> void:
 		return
 	_last_update_unix = now
 	var jds: Dictionary = AstroMathScript.jds_from_unix(now)
+	# vc178 DAYTIME STARS OFF: at the park in daylight (vc177) stars looked
+	# like a close dome, not the sky - because real daytime sky has NO
+	# visible stars, so bright dots drawn over blue sky read as a ceiling.
+	# When the Sun is above the horizon, hide star dots, halos and spikes
+	# entirely; they fade back in at night, when the real sky has stars.
+	# Sun altitude is yaw-independent, so this needs no lock.
+	var _sun_dir178: Vector3 = AstroMathScript.planet_world_dir("Sun", jds["tt"], jds["ut1"], lat_deg, lon_deg, 0.0, 0.0)
+	# vc182: daytime stars back ON (user 2026-11-04): the stars stay in the
+	# sky day and night, so the real sky can be shown even when it is blue.
+	var _day178: bool = false and _sun_dir178.y > 0.0
 	var mm: MultiMesh = _multimesh_instance.multimesh
 	var hm: MultiMesh = _halo_instance.multimesh if _halo_instance != null else null
 	var t: Transform3D = Transform3D()
 	for i: int in range(_stars.size()):
 		var s: Dictionary = _stars[i]
-		var dir: Vector3 = AstroMathScript.star_world_dir(s["ra_h"], s["dec_deg"], jds["tt"], jds["ut1"], lat_deg, lon_deg, yaw_offset_deg)
+		var dir: Vector3 = AstroMathScript.star_world_dir(s["ra_h"], s["dec_deg"], jds["tt"], jds["ut1"], lat_deg, lon_deg, yaw_offset_deg, alt_offset_deg)
 		# v21 horizon hide: dir.y < 0 means alt < 0°, below the
 		# horizon. Scale 0 = hidden, so stars never show over
 		# the floor, walls, or ceiling, and a below-horizon
 		# star (v20 video: Alt -9.5°) can never be pinched.
 		# This does not change layout or yaw — it only hides
 		# what the real sky cannot show right now.
-		var sc: float = _star_scale(s["mag"]) if dir.y >= 0.0 else 0.0
+		var sc: float = _star_scale(s["mag"]) if dir.y >= 0.0 else _star_scale(s["mag"]) * 0.5  # vc75 FULL SKY: below-horizon stars show smaller/dimmer, not hidden
 		# v21 boot fade-in, surreal launch: room first,
 		# stars fade in gently, bright first. Bright mag <1
 		# delay 0s, mag 3 delay 0.5s, mag 6 delay 1.5s, fade
 		# over 1s. No big panel at boot, no fake sky dome.
 		var fade_delay: float = clamp((s["mag"] + 1.0) * 0.25, 0.0, 1.5)
-		var fade: float = clamp((now - _boot_unix - fade_delay) / 1.0, 0.0, 1.0)
+		var fade: float = clamp((now - _boot_unix - fade_delay) / 1.6, 0.0, 1.0)
 		sc *= fade
+		if _day178:
+			sc = 0.0
 		t = Transform3D(Basis().scaled(Vector3(sc, sc, sc)), dir * sky_radius)
 		mm.set_instance_transform(i, t)
 	if hm != null:
 		for hi: int in range(_halo_star_indices.size()):
 			var si: int = _halo_star_indices[hi]
 			var hs: Dictionary = _stars[si]
-			var hdir: Vector3 = AstroMathScript.star_world_dir(hs["ra_h"], hs["dec_deg"], jds["tt"], jds["ut1"], lat_deg, lon_deg, yaw_offset_deg)
-			var hsc: float = _star_scale(hs["mag"]) * 3.0 if hdir.y >= 0.0 else 0.0
+			var hdir: Vector3 = AstroMathScript.star_world_dir(hs["ra_h"], hs["dec_deg"], jds["tt"], jds["ut1"], lat_deg, lon_deg, yaw_offset_deg, alt_offset_deg)
+			var hsc: float = 0.0 if _day178 else (_star_scale(hs["mag"]) * 3.2 if hdir.y >= 0.0 else _star_scale(hs["mag"]) * 1.6)  # vc178 daytime off, vc75 FULL SKY: below-horizon halos at half size
 			hm.set_instance_transform(hi, Transform3D(Basis().scaled(Vector3(hsc, hsc, hsc)), hdir * sky_radius))
+	# vc99 spike sprites follow their stars, same direction, scale by brightness
+	for sprec in _spike_sprites:
+		var si2: int = sprec["index"]
+		var ss: Dictionary = _stars[si2]
+		var sdir: Vector3 = AstroMathScript.star_world_dir(ss["ra_h"], ss["dec_deg"], jds["tt"], jds["ut1"], lat_deg, lon_deg, yaw_offset_deg, alt_offset_deg)
+		var ssc: float = _star_scale(ss["mag"]) * 2.5  # vc103: visible far, ~4-5 degrees, not 14 degrees (vc99) and not 0.5 degrees (vc100)
+		var spnode: Sprite3D = sprec["node"]
+		spnode.visible = not _day178  # vc178 daytime off
+		spnode.global_position = sdir * sky_radius * 1.3  # vc100: farther than star dots
+		spnode.scale = Vector3(ssc, ssc, ssc)
 	# No lines are built. See header.
 
 # For tap-to-identify (Oct 30 step): world direction of a named star.
@@ -280,7 +318,7 @@ func star_world_direction_by_name(star_name: String) -> Vector3:
 	var jds: Dictionary = AstroMathScript.jds_from_unix(Time.get_unix_time_from_system())
 	for s: Dictionary in _stars:
 		if s["name"] == star_name:
-			return AstroMathScript.star_world_dir(s["ra_h"], s["dec_deg"], jds["tt"], jds["ut1"], lat_deg, lon_deg, yaw_offset_deg)
+			return AstroMathScript.star_world_dir(s["ra_h"], s["dec_deg"], jds["tt"], jds["ut1"], lat_deg, lon_deg, yaw_offset_deg, alt_offset_deg)
 	return Vector3.ZERO
 
 func named_star_entry(star_name: String) -> Dictionary:
@@ -296,7 +334,7 @@ func named_star_directions() -> Array:
 	var jds: Dictionary = AstroMathScript.jds_from_unix(Time.get_unix_time_from_system())
 	for s: Dictionary in _stars:
 		if s["name"] != "":
-			out.append({"name": s["name"], "dir": AstroMathScript.star_world_dir(s["ra_h"], s["dec_deg"], jds["tt"], jds["ut1"], lat_deg, lon_deg, yaw_offset_deg), "entry": s})
+			out.append({"name": s["name"], "dir": AstroMathScript.star_world_dir(s["ra_h"], s["dec_deg"], jds["tt"], jds["ut1"], lat_deg, lon_deg, yaw_offset_deg, alt_offset_deg), "entry": s})
 	return out
 
 func star_alt_az_by_name(star_name: String) -> Dictionary:

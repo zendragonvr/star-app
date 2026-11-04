@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://starappfreshmain"]
+[gd_scene load_steps=12 format=3 uid="uid://starappfreshmain"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="Script" path="res://scripts/sky_core.gd" id="2_sky"]
@@ -6,7 +6,12 @@
 [ext_resource type="Script" path="res://scripts/hand_tracking.gd" id="4_hands"]
 [ext_resource type="Script" path="res://scripts/identify_panel.gd" id="5_panel"]
 [ext_resource type="Script" path="res://scripts/teacher_client.gd" id="6_teacher"]
+[ext_resource type="Script" path="res://scripts/teacher_speech.gd" id="11_speech"]
+[ext_resource type="Script" path="res://scripts/earth_sky.gd" id="12_earth"]
 [ext_resource type="Script" path="res://scripts/voice_ui.gd" id="7_voice"]
+[ext_resource type="Script" path="res://scripts/atlas_sky.gd" id="8_atlas"]
+[ext_resource type="Script" path="res://scripts/atlas_system_view.gd" id="9_system"]
+[ext_resource type="Script" path="res://scripts/iss_sky.gd" id="10_iss"]
 
 [sub_resource type="Environment" id="env_passthrough"]
 background_mode = 1
@@ -24,6 +29,16 @@ script = ExtResource("2_sky")
 [node name="PlanetsCore" type="Node3D" parent="."]
 script = ExtResource("3_planets")
 
+[node name="AtlasSky" type="Node3D" parent="."]
+script = ExtResource("8_atlas")
+
+[node name="IssSky" type="Node3D" parent="."]
+script = ExtResource("10_iss")
+
+[node name="AtlasSystemView" type="Node3D" parent="."]
+script = ExtResource("9_system")
+visible = false
+
 [node name="HandTracking" type="Node3D" parent="."]
 script = ExtResource("4_hands")
 
@@ -32,10 +47,13 @@ script = ExtResource("5_panel")
 
 [node name="TeacherClient" type="Node" parent="."]
 script = ExtResource("6_teacher")
+worker_url = "https://star-app-teacher.zendragonvr.workers.dev"
+
+[node name="TeacherSpeech" type="Node" parent="."]
+script = ExtResource("11_speech")
 
 [node name="VoiceUI" type="AudioStreamPlayer" parent="."]
 script = ExtResource("7_voice")
-worker_url = ""
 
 [node name="XROrigin" type="XROrigin3D" parent="."]
 

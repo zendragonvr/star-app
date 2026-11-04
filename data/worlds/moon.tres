@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="PlanetEnv" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/planet_env.gd" id="1_env"]
+
+[resource]
+script = ExtResource("1_env")
+name = "Moon"
+sky_horizon_color = Color(0, 0, 0, 1)
+sky_mid_color = Color(0, 0, 0, 1)
+sky_zenith_color = Color(0, 0, 0, 1)
+haze_strength = 0.0
+sun_angular_size_deg = 0.53
+sun_color = Color(1, 1, 1, 1)
+sun_energy = 3.0
+shadow_hardness = 1.0
+show_stars = true
+star_brightness = 0.3
+fog_color = Color(0, 0, 0, 1)
+fog_density = 0.0
+height_fog = 0.0
+terrain_amplitude = 1.5
+terrain_frequency = 0.012
+terrain_ridge_amount = 1.2
+terrain_crater_count = 25
+terrain_crater_size = 15.0
+ground_albedo = Array[Texture2D]([])
+ground_normal = Array[Texture2D]([])
+ground_roughness = Array[Texture2D]([])
+ground_tint = Array[Color]([Color(0.42, 0.41, 0.4, 1), Color(0.42, 0.41, 0.4, 1), Color(0.42, 0.41, 0.4, 1)])
+rock_mesh_set = Array[Mesh]([])
+rock_density = 1.0
+rock_color = Color(0.32, 0.31, 0.3, 1)
+particle_type = 3
+particle_density = 0
+particle_drift = 0.5
+sky_bodies = Array[Dictionary]([{"name": "Earth", "angular_size_deg": 1.9, "azimuth": 200, "elevation": 60, "color": Color(0.4, 0.6, 1.0, 1)}])
+gravity_scale = 0.165
+eye_height = 1.6
+source_note = "vc115 Moon rework: scripts/moon_height.gd (user-supplied hash craters, 4 layers, 28 m hill radius 140 m, summit clear 6 m) drives terrain; no rocks, no rover, no pebbles in vc115 (pebbles future-only); dark gray regolith albedo ~0.12, procedural 3-scale grain in terrain shader, aniso 16x on Moon StandardMaterials; hard sun 22deg az -20deg, no fog, ambient fill 0.05; black sky with stars, Earth phase-shaded; procedural only, no external download, no copyrighted image. vc179 Phase 4: sun elevation 12deg, Earth 1.9deg at az 200deg el 60deg, NASA Blue Marble Next Generation Earth texture (public domain, credit NASA) loaded in mars_world.gd _build_sky(); stars at brightness 0.3, labelled simulated (in Apollo photos bright ground hides stars); no wind, no ambient audio — the Moon is silent; no fog, horizon from far ground + curvature."
+grade_saturation = 0.15
+grade_contrast = 1.0
+grade_tint = Color(1, 1, 1, 1)
+shadow_distance = 40.0
+sun_elevation_deg = 12.0
+sun_azimuth_deg = -20.0
+rock_count = 0
+boulder_count = 6
+pebble_count = 1200
+cobble_count = 150
+terrain_inner_size = 240.0
+terrain_inner_step = 2.0
+world_kind = "surface"
+face_tint = Color(0.18, 0.83, 0.91, 1)
+platform_label = ""
+has_lake = false
+has_lava = false
+sun_disc = true
+ambient_fill = 0.05
+ice_roughness = 0.95

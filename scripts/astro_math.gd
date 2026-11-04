@@ -69,16 +69,16 @@ static func alt_az(ra_h: float, dec_deg: float, jd_ut1: float, lat_deg: float, l
 	az = fposmod(az + 180.0, 360.0)
 	return {"alt": alt, "az": az}
 
-static func world_dir_from_alt_az(alt_deg: float, az_deg: float, yaw_offset_deg: float = 0.0) -> Vector3:
-	var alt: float = alt_deg * D2R
-	var az: float = (az_deg + yaw_offset_deg) * D2R
+static func world_dir_from_alt_az(alt_deg: float, az_deg: float, yaw_offset_deg: float = 0.0, alt_offset_deg: float = 0.0) -> Vector3:
+	var alt: float = (alt_deg + alt_offset_deg) * D2R
+	var az: float = (az_deg + yaw_offset_deg) * D2R  # vc78 PRECISE: alt_offset corrects height, yaw corrects direction
 	return Vector3(cos(alt) * sin(az), sin(alt), -cos(alt) * cos(az))
 
 # Full pipeline for a catalog star: J2000 -> of-date -> alt/az -> world dir.
-static func star_world_dir(ra_h: float, dec_deg: float, jd_tt: float, jd_ut1: float, lat_deg: float, lon_deg: float, yaw_offset_deg: float = 0.0) -> Vector3:
+static func star_world_dir(ra_h: float, dec_deg: float, jd_tt: float, jd_ut1: float, lat_deg: float, lon_deg: float, yaw_offset_deg: float = 0.0, alt_offset_deg: float = 0.0) -> Vector3:
 	var of_date: Dictionary = precess_j2000_to_of_date(ra_h, dec_deg, jd_tt)
 	var aa: Dictionary = alt_az(of_date["ra_h"], of_date["dec_deg"], jd_ut1, lat_deg, lon_deg)
-	return world_dir_from_alt_az(aa["alt"], aa["az"], yaw_offset_deg)
+	return world_dir_from_alt_az(aa["alt"], aa["az"], yaw_offset_deg, alt_offset_deg)
 
 static func star_alt_az(ra_h: float, dec_deg: float, jd_tt: float, jd_ut1: float, lat_deg: float, lon_deg: float) -> Dictionary:
 	var of_date: Dictionary = precess_j2000_to_of_date(ra_h, dec_deg, jd_tt)
@@ -137,11 +137,11 @@ static func planet_radec_j2000(name: String, jd_tt: float) -> Dictionary:
 		geo = _helio_ecliptic(name, jd_tt) - earth
 	return radec_from_vector(_ecliptic_to_equatorial(geo))
 
-static func planet_world_dir(name: String, jd_tt: float, jd_ut1: float, lat_deg: float, lon_deg: float, yaw_offset_deg: float = 0.0) -> Vector3:
+static func planet_world_dir(name: String, jd_tt: float, jd_ut1: float, lat_deg: float, lon_deg: float, yaw_offset_deg: float = 0.0, alt_offset_deg: float = 0.0) -> Vector3:
 	var rd: Dictionary = planet_radec_j2000(name, jd_tt)
 	var of_date: Dictionary = precess_j2000_to_of_date(rd["ra_h"], rd["dec_deg"], jd_tt)
 	var aa: Dictionary = alt_az(of_date["ra_h"], of_date["dec_deg"], jd_ut1, lat_deg, lon_deg)
-	return world_dir_from_alt_az(aa["alt"], aa["az"], yaw_offset_deg)
+	return world_dir_from_alt_az(aa["alt"], aa["az"], yaw_offset_deg, alt_offset_deg)
 
 # --- Moon, simplified series + topocentric correction, spec section 9 ---
 static func _sin_deg(x_deg: float) -> float:
@@ -194,8 +194,8 @@ static func moon_radec_j2000(jd_tt: float, jd_ut1: float, lat_deg: float, lon_de
 	var topo: Vector3 = moon_er - observer_er
 	return radec_from_vector(topo)
 
-static func moon_world_dir(jd_tt: float, jd_ut1: float, lat_deg: float, lon_deg: float, yaw_offset_deg: float = 0.0) -> Vector3:
+static func moon_world_dir(jd_tt: float, jd_ut1: float, lat_deg: float, lon_deg: float, yaw_offset_deg: float = 0.0, alt_offset_deg: float = 0.0) -> Vector3:
 	var rd: Dictionary = moon_radec_j2000(jd_tt, jd_ut1, lat_deg, lon_deg, true)
 	var of_date: Dictionary = precess_j2000_to_of_date(rd["ra_h"], rd["dec_deg"], jd_tt)
 	var aa: Dictionary = alt_az(of_date["ra_h"], of_date["dec_deg"], jd_ut1, lat_deg, lon_deg)
-	return world_dir_from_alt_az(aa["alt"], aa["az"], yaw_offset_deg)
+	return world_dir_from_alt_az(aa["alt"], aa["az"], yaw_offset_deg, alt_offset_deg)

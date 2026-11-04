@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="PlanetEnv" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/planet_env.gd" id="1_7ysgy"]
+
+[resource]
+script = ExtResource("1_7ysgy")
+name = "Mars"
+sky_horizon_color = Color(0.86, 0.7, 0.52, 1)
+sky_mid_color = Color(0.76, 0.58, 0.4, 1)
+sky_zenith_color = Color(0.55, 0.4, 0.3, 1)
+haze_strength = 0.35
+sun_angular_size_deg = 0.35
+sun_color = Color(1, 0.92, 0.8, 1)
+sun_energy = 2.2
+shadow_hardness = 1.0
+show_stars = true
+star_brightness = 0.45
+fog_color = Color(0.86, 0.7, 0.52, 1)
+fog_density = 0.00025
+height_fog = 0.0
+terrain_amplitude = 2.2
+terrain_frequency = 0.012
+terrain_ridge_amount = 1.2
+terrain_crater_count = 3
+terrain_crater_size = 20.0
+ground_albedo = Array[Texture2D]([])
+ground_normal = Array[Texture2D]([])
+ground_roughness = Array[Texture2D]([])
+ground_tint = Array[Color]([Color(0.3, 0.19, 0.12, 1), Color(0.6, 0.4, 0.26, 1), Color(0.23, 0.15, 0.1, 1)])
+rock_mesh_set = Array[Mesh]([])
+rock_density = 1.0
+rock_color = Color(0.45, 0.28, 0.18, 1)
+particle_type = 0
+particle_density = 400
+particle_drift = 0.5
+sky_bodies = Array[Dictionary]([{"name": "Earth", "angular_size_deg": 1.5, "azimuth": 60, "elevation": 30, "color": Color(0.4, 0.6, 1.0, 1)}])
+gravity_scale = 1.0
+eye_height = 1.6
+source_note = "vc110: all textures procedural in code (mars_world.gd detail texture + shader noise), no external download, no copyrighted image. Sky/ground colours retuned vc109 against Perseverance/Curiosity reference colours as described in code. Real HiRISE/CTX DTM and NASA rover model are NEXT steps, not in vc110. vc179 Phase 3: megaripples and dust are simulated artistic choices, not surveyed Mars features. vc181: spawn hill (45 m), mountain range 3-9 km, fog, rock shadows and daytime stars are simulated, not a real named place (real Mars daytime sky hides stars). Rover is a procedural Perseverance-style shape, not a NASA model."
+grade_saturation = 0.85
+grade_contrast = 1.1
+grade_tint = Color(1.06, 0.99, 0.9, 1)
+shadow_distance = 60.0
+shadow_hardness = 0.8
+sun_elevation_deg = 18.0
+sun_azimuth_deg = -45.0
+ambient_fill = 0.45
+rock_count = 300
+boulder_count = 8
+pebble_count = 1500
+cobble_count = 300
+terrain_inner_size = 120.0
+terrain_inner_step = 1.0
