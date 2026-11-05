@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:versionCode="1"
+    android:versionName="1.0"
+    android:installLocation="auto" >
+
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:xlargeScreens="true" />
+
+    <uses-feature
+        android:glEsVersion="0x00030000"
+        android:required="true" />
+
+    <!-- v7: Meta passthrough. Declared here because the vendored
+         godotopenxrmeta AAR's own manifest does not include it
+         (NNR v40 lesson). Without this, the Meta runtime offers
+         only OPAQUE blend mode — v6 panel proved it: Modes:
+         OPAQUE only, room black, despite Blend: ALPHA requested.
+         This declaration is what unlocks ALPHA passthrough. -->
+    <uses-feature
+        android:name="com.oculus.feature.PASSTHROUGH"
+        android:required="true" />
+
+    <!-- Teacher relay: Godot HTTPRequest from the Quest app needs
+         INTERNET, and the export preset's internet_access=true was
+         NOT ending up in the APK manifest (vc23 aapt shows no
+         INTERNET permission) — that is why the app said teacher
+         offline while the Quest browser reached the relay fine.
+         Declared here explicitly, same pattern as passthrough/hand
+         tracking above. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- v10: Meta hand tracking. Same pattern as v7 passthrough:
+         Godot's hand_tracking project setting alone does NOT add
+         these to the manifest, and Meta's own docs say: "Apps
+         that do not specify these flags will not see hand
+         devices enumerated." That is exactly the v6-v9 symptom:
+         Hands L:NONE R:NONE, tracker null, pinch never fires.
+         Permission + feature, feature NOT required so the app
+         still installs if hand tracking is off in settings. -->
+    <uses-permission android:name="com.oculus.permission.HAND_TRACKING" />
+    <uses-feature
+        android:name="oculus.software.handtracking"
+        android:required="false" />
+
+    <application
+        android:label="@string/godot_project_name_string"
+        android:allowBackup="false"
+        android:icon="@mipmap/icon"
+        android:appCategory="game"
+        android:isGame="true"
+        android:hasFragileUserData="false"
+        android:requestLegacyExternalStorage="false"
+        tools:ignore="GoogleAppIndexingWarning" >
+        <profileable
+            android:shell="true"
+            android:enabled="true"
+            tools:targetApi="29" />
+
+        <!-- Records the version of the Godot editor used for building -->
+        <meta-data
+            android:name="org.godotengine.editor.version"
+            android:value="${godotEditorVersion}" />
+
+        <!-- v7: supported devices. Without this the merged manifest
+             carries supportedDevices="" (empty, seen in v6 APK), which
+             Meta treats as invalid / no devices. Same value as NNR. -->
+        <meta-data
+            android:name="com.oculus.supportedDevices"
+            android:value="quest2|quest3|quest3s" />
+
+        <activity
+            android:name=".GodotApp"
+            android:label="@string/godot_project_name_string"
+            android:theme="@style/GodotAppSplashTheme"
+            android:launchMode="singleInstancePerTask"
+            android:excludeFromRecents="false"
+            android:exported="true"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|keyboardHidden|screenSize|smallestScreenSize|density|keyboard|navigation|screenLayout|uiMode"
+            android:resizeableActivity="false"
+            tools:ignore="UnusedAttribute" >
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>

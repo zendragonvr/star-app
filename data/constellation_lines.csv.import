@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://semswuohgdvv"
+
+[deps]
+
+files=["res://data/constellation_lines.star.translation", "res://data/constellation_lines.star.translation"]
+
+source_file="res://data/constellation_lines.csv"
+dest_files=["res://data/constellation_lines.star.translation", "res://data/constellation_lines.star.translation"]
+
+[params]
+
+compress=true
+delimiter=0

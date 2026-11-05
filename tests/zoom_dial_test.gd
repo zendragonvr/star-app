@@ -19,7 +19,7 @@ func _check(cond: bool, label: String) -> void:
 
 func _initialize() -> void:
 	var p: Node3D = PlanetsCore.new()
-	p._bodies = {"Mars": true, "Jupiter": true}
+	p._bodies = _mj_pair()
 	_check(absf(p.zoom_factor() - 1.0) < 0.001, "starts at 1x")
 	p.set_zoom(0.5)
 	_check(absf(p.zoom_factor() - 1.0) < 0.001, "clamps low to 1x")
@@ -53,3 +53,12 @@ func _initialize() -> void:
 	p.free()
 	print("ZoomDial: ", "ALL PASS" if _fail == 0 else "SOME FAILED")
 	quit(_fail)
+
+# Real node values, not booleans: the product types _bodies values
+# as MeshInstance3D, and bool seeds trip a type error on select.
+func _mj_pair() -> Dictionary:
+	var d: Dictionary = {}
+	for bn: String in ["Mars", "Jupiter"]:
+		var mi: MeshInstance3D = MeshInstance3D.new()
+		d[bn] = mi
+	return d

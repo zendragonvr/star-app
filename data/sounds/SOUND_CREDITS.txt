@@ -1,0 +1,26 @@
+TELESCOPE ZOOM SOUND — CREDIT REQUIRED
+"Kaitafilmikamera, zoomaus / Film camera, home movie camera, zoom,
+zooming, various takes, exterior, a close sound (Canon, 8 mm)"
+by YleArkisto — https://freesound.org/people/YleArkisto/sounds/335351/
+License: CC BY 4.0 — credit the author. This credit must stay in the
+app / submission credits if this sound ships.
+
+Files:
+- sound_zoom.wav = take 2 from that recording (3.5 s), used once when
+  entering telescope view (main.gd line 514). Full 20.708 s file would
+  play over the telescope voice lines, so it is NOT the play slot.
+- sound_zoom_full_yle.wav = full recording, 20.708 s, kept for reference.
+- film-camera-zoom-take1..5.wav = the 5 clean takes, for later
+  zoom-in / zoom-out wiring if code adds a second slot.
+
+Note: these WAVs were converted from the Freesound low-quality preview,
+not the original master WAV. Replace with the full master WAV from
+Freesound (login download) for final master quality, same credit.
+
+## USER-SUPPLIED, LICENSE UNVERIFIED — PLAYTEST ONLY, AUDIT BEFORE SUBMISSION
+- sound_pinch_click.wav — user file soundshelfstudio-sci-fi-ui-click-sound-596258.mp3, 2026-10-29. Pinch success click.
+- sound_typing_tick.wav — user file 47313572-ui-sounds-pack-2-sound-6-358891.mp3, 2026-10-29. Typing tick per letter.
+- License for both NOT verified as CC0/public domain. Do NOT claim them free. Before final submission, verify license, credit if required, or replace with CC0/original synthesis per user 2026-10-28 sound rule.
+
+## USER-SUPPLIED, LICENSE UNVERIFIED — PLAYTEST ONLY, AUDIT BEFORE SUBMISSION
+- sound_typing_tick.wav REPLACED 2026-10-29 21:16 EDT — user file freesound_community-data-reveal-sound-6460.mp3, amplified 8x (original peak 0.08, very quiet, now peak ~0.64), plays continuously while captions type, stops when typing done. Previous tick file (47313572-ui-sounds-pack-2) superseded by user choice.

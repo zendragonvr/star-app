@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://bctoq6qqqhg57"
+
+[deps]
+
+files=["res://data/constellation_line_extra_stars.ra.translation", "res://data/constellation_line_extra_stars.dec.translation", "res://data/constellation_line_extra_stars.mag.translation", "res://data/constellation_line_extra_stars.proper.translation", "res://data/constellation_line_extra_stars.bayer.translation", "res://data/constellation_line_extra_stars.flamsteed.translation", "res://data/constellation_line_extra_stars.constellation.translation"]
+
+source_file="res://data/constellation_line_extra_stars.csv"
+dest_files=["res://data/constellation_line_extra_stars.ra.translation", "res://data/constellation_line_extra_stars.dec.translation", "res://data/constellation_line_extra_stars.mag.translation", "res://data/constellation_line_extra_stars.proper.translation", "res://data/constellation_line_extra_stars.bayer.translation", "res://data/constellation_line_extra_stars.flamsteed.translation", "res://data/constellation_line_extra_stars.constellation.translation"]
+
+[params]
+
+compress=true
+delimiter=0
